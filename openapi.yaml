@@ -1,0 +1,236 @@
+openapi: 3.0.2
+
+info:
+  title: Inventory API
+  description: Inventory API with Atp, Reservations
+  version: '1.0.0' #api version
+
+
+# tags:
+#   - name: inventory
+
+servers:
+  - url: http://localhost:3000
+    description: Optional server description, e.g. Main (production) server
+
+paths:
+
+  /v1/atp:
+    post:
+      summary: Post available to promise inventory 
+      requestBody:
+        description: Optional description in *Markdown*
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AtpRequest'
+      responses:
+        '200':
+          description: Atp updated successfully
+        '400':
+          description: atp errors list
+          content:
+            plain/text:
+              schema:
+                oneOf: 
+                  - type: string
+                    example: Please update max 25 atp objects at a time
+                  - type: string
+                    example: Request cannot include multiple operations on one item
+        '500':
+          description: Internal Server Error
+    get:
+      summary: Get available to promise inventory 
+      parameters:
+        - in: query
+          name: skuId
+          required: true
+          schema:
+            type: string
+          description: > 
+            The name identified as inventory Sku identifier. 
+            The skuId can be pass alone to obtain total atp across locations e.g. Ship To Home.
+        - in: query
+          name: site
+          schema:
+            type: string
+          description: >
+            The location for inventory e.g. DC or Store.
+            The site must be used together with `skuId`. This combination provides atp for sku and site e.g. PickUp At Store.
+      responses:
+        '200':    # status code
+          description: A JSON array of object for onhand and future atp
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/AtpResponse'
+        '500':
+          description: Internal Server Error
+
+  /v1/reserve:
+    post:
+      summary: Post reservations 
+      requestBody:
+        description: Creates reservation against available inventory to promise 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReserveRequest'
+      responses:
+        '200':
+          description: A JSON array of objects for reservations
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ReserveResponse'
+        '400':
+          description: reservation creation errors list
+          content:
+            plain/text:
+              schema:
+                oneOf: 
+                  - type: string
+                    example: Please update max 10 reservation objects at a time
+                  - type: string
+                    example: Sufficient quantity is not available to reserve
+        '500':
+          description: Internal Server Error
+    get:
+      summary: Get reservations
+      parameters:
+        - in: query
+          name: reservationId
+          schema:
+            type: string
+          description: > 
+            The name identified as inventory reservation identifier. 
+            The reservationId can be pass alone to obtain all the reservations under that reservationId.
+        - in: query
+          name: skuId
+          schema:
+            type: string
+          description: > 
+            The name identified as inventory Sku identifier. 
+            The skuId must be used together with `site`.
+        - in: query
+          name: site
+          schema:
+            type: string
+          description: >
+            The location for inventory e.g. DC or Store.
+            The site must be used together with `skuId`.
+       
+      responses:
+        '200':    # status code
+          description: A JSON array of objects for reservations
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ReserveResponse'
+        '500':
+          description: Internal Server Error
+    delete:
+      summary: Delete reservation
+      parameters:
+        - in: query
+          name: reservationId
+          required: true
+          schema:
+            type: string
+          description: > 
+            The name identified as inventory reservation identifier. 
+      responses:
+        '200':
+          description: Successful Reservation Deletion
+        '400':
+          description: reservation deletion errors list
+          content:
+            plain/text:
+              schema:
+                oneOf: 
+                  - type: string
+                    example: Reservation has already expired or deleted
+        '500':
+          description: Internal Server Error
+
+components:
+  schemas:
+    AtpRequest:
+      type: object
+      properties:
+        atp: 
+          type: array
+          description: list of atp objects with limit to 25 objects at a time
+          items:
+            type: object
+            properties:
+              skuId:
+                type: string
+              site:
+                type: string
+              qty:
+                type: number
+              promiseDate:
+                type: string
+                format: date-time
+
+    AtpResponse:
+      type: array
+      items: 
+        type: object
+        properties:
+          skuId:
+            type: string
+          site:
+            type: string
+          qty:
+            type: number
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
+
+    ReserveRequest:
+      type: object
+      properties:
+        reservations: 
+          type: array
+          description: list of reservation objects with limit to 10 objects at a time
+          items:
+            type: object
+            properties:
+              skuId:
+                type: string
+              site:
+                type: string
+              qty:
+                type: number
+              expiresIn:
+                type: number
+                
+    ReserveResponse:
+      type: array
+      items: 
+        type: object
+        properties:
+          skuId:
+            type: string
+          site:
+            type: string
+          reservationId:
+            type: string
+          qty:
+            type: number
+          expiresAt:
+            type: string
+            format: date-time
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
