@@ -269,8 +269,7 @@ components:
           qty:
             type: number
             description: The number of units required to reserve.
-            example: 12
-            maxLength: 10
+            example: 2
           expiresAt:
             type: string
             description: Inventory reservation expiration date timestamp.
