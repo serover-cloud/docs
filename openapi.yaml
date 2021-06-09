@@ -10,8 +10,7 @@ info:
 #   - name: inventory
 
 servers:
-  - url: http://localhost:3000
-    description: Optional server description, e.g. Main (production) server
+  - url: https://tenant.api.serover.com/inventory
 
 paths:
 
@@ -162,18 +161,32 @@ components:
       properties:
         atp: 
           type: array
-          description: list of atp objects with limit to 25 objects at a time
           items:
             type: object
+            required:
+              - skuId
+              - site
+              - qty
             properties:
               skuId:
                 type: string
+                description: The name identified as inventory Sku unique identifier.
+                example: HA345349
+                maxLength: 25
               site:
                 type: string
+                description: The name identified as inventory location unique identifier.
+                example: ST3454
+                maxLength: 25
               qty:
                 type: number
+                description: The number of units available to promise.
+                example: 12
+                maxLength: 10
               promiseDate:
                 type: string
+                description: Optional. Date available inventory for future date. Do not pass this for onhand inventory. 
+                example: 2022-02-24T00:00:00.000Z
                 format: date-time
 
     AtpResponse:
@@ -183,15 +196,25 @@ components:
         properties:
           skuId:
             type: string
+            description: The name identified as inventory Sku unique identifier.
+            example: HA345349
           site:
             type: string
+            description: The name identified as inventory location unique identifier.
+            example: ST3454
           qty:
             type: number
+            description: The number of units available to promise.
+            example: 12
           createdAt:
             type: string
+            description: Available to promise inventory record created date timestamp.
+            example: 2021-02-24T00:00:00.000Z
             format: date-time
           updatedAt:
             type: string
+            description: Available to promise inventory record update date timestamp.
+            example: 2021-04-24T00:00:00.000Z
             format: date-time
 
     ReserveRequest:
@@ -199,18 +222,32 @@ components:
       properties:
         reservations: 
           type: array
-          description: list of reservation objects with limit to 10 objects at a time
           items:
             type: object
+            required:
+              - skuId
+              - site
+              - qty
             properties:
               skuId:
                 type: string
+                description: The name identified as inventory Sku unique identifier.
+                example: HA345349
+                maxLength: 25
               site:
                 type: string
+                description: The name identified as inventory location unique identifier.
+                example: ST3454
+                maxLength: 25
               qty:
                 type: number
+                description: The number of units required to reserve.
+                example: 12
+                maxLength: 10
               expiresIn:
                 type: number
+                description: Optional. The number of minutes after reservation expires. If not passed Default is 15 mins.
+                example: 10
                 
     ReserveResponse:
       type: array
@@ -219,18 +256,33 @@ components:
         properties:
           skuId:
             type: string
+            description: The name identified as inventory Sku unique identifier.
+            example: HA345349
           site:
             type: string
+            description: The name identified as inventory location unique identifier.
+            example: ST3454
           reservationId:
             type: string
+            description: The name identified as reservation unique identifier.
+            example: eewk3ekyou7zl6
           qty:
             type: number
+            description: The number of units required to reserve.
+            example: 12
+            maxLength: 10
           expiresAt:
             type: string
+            description: Inventory reservation expiration date timestamp.
+            example: 2021-02-24T00:00:00.000Z
             format: date-time
           createdAt:
             type: string
+            description: Inventory reservation record created date timestamp.
+            example: 2021-02-24T00:00:00.000Z
             format: date-time
           updatedAt:
             type: string
+            description: Inventory reservation record update date timestamp.
+            example: 2021-04-24T00:00:00.000Z
             format: date-time
