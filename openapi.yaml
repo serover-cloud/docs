@@ -2,12 +2,16 @@ openapi: 3.0.2
 
 info:
   title: Inventory API
-  description: Inventory API with Atp, Reservations
+  description: Inventory API with Atp, Reservations. Following base url to test it for free https://tenant.api.serover.com/inventory
   version: '1.0.0' #api version
 
 
-# tags:
-#   - name: inventory
+security:
+  - ApiKeyAuth: []   
+    oAuth2ClientCredentials: []
+
+tags:
+  - name: inventory
 
 servers:
   - url: https://tenant.api.serover.com/inventory
@@ -155,6 +159,20 @@ paths:
           description: Internal Server Error
 
 components:
+  securitySchemes:
+    ApiKeyAuth:        
+      type: apiKey
+      description: Api key based on usage plan. For trying with tenant endpoint use api key - nVixRWiYBv9XGYze4cb2k6x6Jk4AGDgn8vIa5D51
+      in: header       
+      name: x-api-key
+    oAuth2ClientCredentials:
+      type: oauth2
+      description: endpoint to get oauth2 token with tenantId provided to you
+      flows: 
+        clientCredentials: 
+          tokenUrl: https://tenantId.auth.us-east-1.amazoncognito.com/oauth2/token
+          scopes: {"transactions_all"}
+
   schemas:
     AtpRequest:
       type: object
